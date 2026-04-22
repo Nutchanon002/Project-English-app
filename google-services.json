@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1090408504482",
+    "project_id": "english-app-master",
+    "storage_bucket": "english-app-master.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1090408504482:android:4c87d21756c4548c65cbfb",
+        "android_client_info": {
+          "package_name": "com.nutchanon7331.englishapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1090408504482-ifffpt6uktl2ht3gngi82kqi6m79mll6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOgjt9sK4M8Kh1AmQqvSHNOE65N1r74DQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1090408504482-ifffpt6uktl2ht3gngi82kqi6m79mll6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

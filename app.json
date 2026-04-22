@@ -1,17 +1,16 @@
 {
   "expo": {
     "name": "EnglishApp",
-    "slug": "EnglishApp",
+    "slug": "english-app",
+    "scheme": "englishapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "englishapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true
-    },
     "android": {
+      "package": "com.nutchanon7331.englishapp",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -21,12 +20,28 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
+    "ios": {
+      "supportsTablet": true
+    },
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
       "expo-router",
+      "@react-native-google-signin/google-signin",
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "1557885552127580",
+          "clientToken": "2db40867f22874a4723b187c974f1a11",
+          "displayName": "EnglishApp",
+          "scheme": "fb1557885552127580",
+          "advertiserIDCollectionEnabled": false,
+          "autoLogAppEventsEnabled": false,
+          "isAutoInitEnabled": true
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -43,6 +58,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8b5a937d-74c6-4994-9779-56ac3a9476d6"
+      }
     }
   }
 }
