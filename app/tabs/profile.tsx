@@ -8,7 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { signOut } from 'firebase/auth';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebaseConfig'; 
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
@@ -62,9 +62,9 @@ export default function ProfileScreen() {
     if (user) {
       try {
         setLoading(true);
-        await updateDoc(doc(db, "users", user.uid), {
+        await setDoc(doc(db, "users", user.uid), {
           nickname: newNickname
-        });
+        }, { merge: true });
         
         // อัปเดต State ในหน้าจอ
         setUserData({ ...userData, nickname: newNickname });

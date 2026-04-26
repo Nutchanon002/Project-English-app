@@ -225,21 +225,31 @@ export default function PretestScreen() {
             }
         });
 
+        // 1. Calculate Percent and Assign Level
+        const percentScore = (totalScore / questions.length) * 100;
+        let learnerLevel = "";
         let recommendationText = "";
-        if (totalScore === questions.length) {
-            recommendationText = "สุดยอดมากครับ! 🎉\nระบบ AI วิเคราะห์ว่าคุณมีความเข้าใจพื้นฐานครบถ้วนทุกสาระการเรียนรู้แล้ว พร้อมลุยบทเรียนระดับสูงได้เลย!";
-        } else if (weakPoints.length > 0) {
-            recommendationText = `จากการประเมิน AI พบว่าคุณควรเสริมทักษะในหัวข้อด้านล่างนี้ ระบบได้เตรียมบทเรียนที่เหมาะสมไว้ให้แล้วครับ`;
+
+        if (percentScore >= 80) {
+            learnerLevel = "Advanced";
+            recommendationText = "สุดยอดมากครับ! 🎉\nระดับของคุณคือ Advanced (ระดับสูง)\nระบบ AI วิเคราะห์ว่าคุณมีความเข้าใจพื้นฐานครบถ้วนแล้ว พร้อมลุยเนื้อหาตามความสนใจได้เลย!";
+        } else if (percentScore >= 50) {
+            learnerLevel = "Intermediate";
+            recommendationText = "เยี่ยมมากครับ!\nระดับของคุณคือ Intermediate (ระดับกลาง)\nคุณมีพื้นฐานที่ดี แต่ยังมีบางจุดที่ต้องเสริม AI ได้เตรียมเนื้อหาให้คุณฝึกฝนเฉพาะจุดแล้วครับ";
         } else {
-            recommendationText = "คุณทำคะแนนได้ดีครับ แต่ยังมีบางจุดเล็กน้อยที่ทบทวนเพิ่มได้ ลองดูบทเรียนแนะนำด้านล่างนะครับ";
+            learnerLevel = "Beginner";
+            recommendationText = "สู้ๆ นะครับ!\nระดับของคุณคือ Beginner (ระดับพื้นฐาน)\nไม่ต้องกังวลครับ AI ได้เลือกบทเรียนที่คุณควรเน้นเพื่อปูพื้นฐานให้แน่นมาให้แล้วครับ";
         }
 
         const user = auth.currentUser;
         if (user) {
             try {
+                // บันทึกผลการประเมินลง Firestore เพื่อนำไปใช้หน้า Dashboard
                 await setDoc(doc(db, "assessment_results", user.uid), {
                     score: totalScore,
                     total: questions.length,
+                    percent: percentScore,
+                    learner_level: learnerLevel,
                     weak_strands: weakPoints.map(w => w.id),
                     recommendation: recommendationText,
                     timestamp: new Date()

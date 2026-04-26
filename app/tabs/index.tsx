@@ -26,6 +26,7 @@ export default function DashboardScreen() {
   // เก็บผลสอบ { score, total }
   const [exerciseResults, setExerciseResults] = useState<any>({}); 
   const [questionCounts, setQuestionCounts] = useState<{[key: string]: number}>({});
+  const [assessmentResult, setAssessmentResult] = useState<any>(null); // ✅ เก็บผลจาก AI
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -109,12 +110,22 @@ export default function DashboardScreen() {
         setLoading(false); 
     });
 
+    // ✅ เพิ่ม: ดึงผลประเมิน AI ของผู้ใช้คนนี้
+    const unsubAssessment = onSnapshot(doc(db, "assessment_results", user.uid), (docSnap) => {
+        if (docSnap.exists()) {
+            setAssessmentResult(docSnap.data());
+        } else {
+            setAssessmentResult(null);
+        }
+    });
+
     return () => {
         unsubStrands();
         unsubTopics();
         unsubProgress();
         unsubExercises();
         unsubQuestions(); 
+        unsubAssessment(); // ✅ ล้าง subscription
     };
   }, []);
 
@@ -178,7 +189,6 @@ export default function DashboardScreen() {
       >
 
         <View style={styles.cardInner}>
-            <StatusBar style="dark" /> 
             <View style={{flex: 1, paddingRight: 15}}>
                 <Text style={styles.cardTitle}>{item.no}. {item.title}</Text>
                 {item.subtitle ? (
@@ -236,29 +246,61 @@ export default function DashboardScreen() {
             </View>
         </View>
 
-        <TouchableOpacity 
-            style={styles.assessmentBanner}
-              onPress={() => router.push("/pretest" as any)}
-        >
-            <Text style={styles.assessTitle}>แบบทดสอบประเมินความรู้</Text>
-            <Text style={styles.assessSub}>ทำแบบทดสอบท้ายบทเรียนเพื่อวัดระดับ</Text>
-            <Text style={styles.assessLink}>เริ่มทำแบบทดสอบ {'>'}</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.sectionHeader}>สาระการเรียนรู้</Text>
+        {/* AI Banner / Pretest Banner */}
+        {!assessmentResult ? (
+            <TouchableOpacity 
+                style={styles.assessmentBanner}
+                onPress={() => router.push("/pretest" as any)}
+            >
+                <Text style={styles.assessTitle}>แบบทดสอบประเมินความรู้</Text>
+                <Text style={styles.assessSub}>ทำแบบทดสอบเพื่อรับแผนการเรียนที่เหมาะสมจาก AI</Text>
+                <Text style={styles.assessLink}>เริ่มทำแบบทดสอบ {'>'}</Text>
+            </TouchableOpacity>
+        ) : (
+            <TouchableOpacity 
+                style={[styles.assessmentBanner, { borderColor: '#FFA000', backgroundColor: '#FFF8E1' }]}
+                onPress={() => router.push("/pretest" as any)}
+            >
+                <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 5}}>
+                    <Text style={{fontSize: 20, marginRight: 5}}>🤖</Text>
+                    <Text style={[styles.assessTitle, {marginBottom: 0, color: '#FF8F00'}]}>ผลประเมินของคุณ: {assessmentResult.learner_level || "Learner"}</Text>
+                </View>
+                <Text style={[styles.assessSub, {color: '#8D6E63'}]}>
+                    คะแนน: {assessmentResult.score}/{assessmentResult.total} | ทดสอบซ้ำเพื่ออัปเดตผล AI
+                </Text>
+                <Text style={[styles.assessLink, {color: '#FF8F00'}]}>ทำแบบทดสอบอีกครั้ง {'>'}</Text>
+            </TouchableOpacity>
+        )}
 
         {loading ? (
             <ActivityIndicator size="large" color="#4CAF50" style={{marginTop: 50}} />
         ) : (
             <View style={styles.listContainer}>
-                {strands.length > 0 ? (
-                    strands.map((item) => renderCard(item))
-                ) : (
+                {strands.length === 0 ? (
                     <Text style={styles.emptyText}>ยังไม่มีข้อมูลสาระ (เพิ่มใน Admin ได้เลย)</Text>
+                ) : assessmentResult && assessmentResult.weak_strands && assessmentResult.weak_strands.length > 0 ? (
+                    // 🌟 แสดงแบบ AI Personalized
+                    <>
+                        <Text style={[styles.sectionHeader, { color: '#E65100' }]}>🌟 AI แนะนำให้คุณเรียนเสริม</Text>
+                        {strands.filter(s => assessmentResult.weak_strands.includes(s.id)).map(renderCard)}
+                        
+                        <Text style={[styles.sectionHeader, { marginTop: 20 }]}>📚 เนื้อหาการเรียนรู้อื่นๆ</Text>
+                        {strands.filter(s => !assessmentResult.weak_strands.includes(s.id)).map(renderCard)}
+                    </>
+                ) : (
+                    // แบบปกติ หรือ สอบได้เต็ม
+                    <>
+                        {assessmentResult?.score === assessmentResult?.total && assessmentResult?.total > 0 && (
+                            <Text style={{color: '#4CAF50', fontWeight: 'bold', fontSize: 16, marginBottom: 15, textAlign: 'center'}}>
+                                🎉 คุณทำคะแนนได้เต็ม! ลุยเนื้อหาตามใจชอบได้เลยครับ
+                            </Text>
+                        )}
+                        <Text style={styles.sectionHeader}>สาระการเรียนรู้</Text>
+                        {strands.map(renderCard)}
+                    </>
                 )}
             </View>
         )}
-        <StatusBar style="dark"/>
       </ScrollView>
     </View>
   );

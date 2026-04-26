@@ -61,7 +61,6 @@ export default function RootLayout() {
         <Stack.Screen name="pretest" /> 
         <Stack.Screen name="register" />
       </Stack>
-      <StatusBar style="dark" /> 
     </ThemeProvider>
   );
 }
