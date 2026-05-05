@@ -2,6 +2,7 @@
 import { useRouter } from 'expo-router';
 import { collection, doc, getDoc, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
+import { useIsFocused } from '@react-navigation/native';
 import {
   ActivityIndicator,
   RefreshControl,
@@ -14,10 +15,9 @@ import {
 import { auth, db } from '../../firebaseConfig';
 import { StatusBar } from 'expo-status-bar';
 
-
-
 export default function DashboardScreen() {
   const router = useRouter();  
+  const isFocused = useIsFocused();
   
   const [strands, setStrands] = useState<any[]>([]);
   const [allTopics, setAllTopics] = useState<any[]>([]);
@@ -230,6 +230,7 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
+      {isFocused && <StatusBar style="dark" />}
       <ScrollView 
         contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={

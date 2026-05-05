@@ -8,11 +8,13 @@ import { useRouter } from 'expo-router';
 import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestore';
 import { db, auth } from '../../firebaseConfig'; 
 import { StatusBar } from 'expo-status-bar';
+import { useIsFocused } from '@react-navigation/native';
 
 // ❌ ลบตัวแปรนี้ออกแล้วครับ: const CURRENT_STUDENT_ID = "user_001"; 
 
 export default function ExercisesScreen() {
   const router = useRouter();  
+  const isFocused = useIsFocused();
   
   const [strands, setStrands] = useState<any[]>([]);
   // เก็บข้อมูลผลสอบแบบละเอียด (Score + Recorded Total)
@@ -138,7 +140,7 @@ export default function ExercisesScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" translucent={true} backgroundColor="transparent" />
+      {isFocused && <StatusBar style="light" translucent={true} backgroundColor="transparent" />}
       
       <View style={styles.header}>
         <Text style={styles.headerTitle}>แบบฝึกหัดท้ายบท</Text>

@@ -11,9 +11,11 @@ import { signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebaseConfig'; 
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { useIsFocused } from '@react-navigation/native';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const isFocused = useIsFocused();
   
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -123,7 +125,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
+      {isFocused && <StatusBar style="light" />}
       
       {/* Header Area */}
       <View style={styles.headerBackground}>

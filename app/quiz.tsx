@@ -9,9 +9,6 @@ import { collection, query, where, getDocs, doc, setDoc, getDoc } from 'firebase
 import { db, auth } from '../firebaseConfig'; // ตรวจสอบ path ให้ถูกต้อง
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
-
-// ❌ 1. ลบตัวแปรนี้ออก: const CURRENT_STUDENT_ID = "user_001";
-
 export default function QuizScreen() {
     const router = useRouter();
     const params = useLocalSearchParams();
@@ -24,7 +21,6 @@ export default function QuizScreen() {
 
     useEffect(() => {
         const fetchData = async () => {
-            // ✅ 2. เช็ค User ก่อนเริ่มทำงาน
             const user = auth.currentUser;
             if (!user) {
                 setLoading(false);
@@ -138,8 +134,15 @@ export default function QuizScreen() {
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color="#fff" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>{title || "แบบฝึกหัด"}</Text>
-                <View style={{ width: 35 }} /> 
+                
+                <View style={styles.headerTextContainer}>
+                    <Text style={styles.headerTitle}>{title || "แบบฝึกหัด"}</Text>
+                    <Text style={styles.headerSubTitle}>
+                        แบบฝึกหัดทั้งหมด {questions.length} ข้อ
+                    </Text>
+                </View>
+
+                <View style={{ width: 40 }} /> 
             </View>
 
             {questions.length === 0 ? (
@@ -155,9 +158,14 @@ export default function QuizScreen() {
                     {questions.map((q, qIndex) => {
                         return (
                             <View key={q.id} style={styles.questionContainer}>
-                                <Text style={styles.questionText}>
-                                    {qIndex + 1}). {q.question_text}
-                                </Text>
+                                <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                                    <Text style={[styles.questionText, { marginBottom: 0, marginRight: 8 }]}>
+                                        {qIndex + 1}).
+                                    </Text>
+                                    <Text style={[styles.questionText, { flex: 1, marginBottom: 0 }]}>
+                                        {q.question_text}
+                                    </Text>
+                                </View>
 
                                 {q.question_image && (
                                     <Image source={{ uri: q.question_image }} style={styles.questionImage} resizeMode="contain" />
@@ -227,12 +235,34 @@ const styles = StyleSheet.create({
     header: {
         paddingTop: Platform.OS === 'android' ? 45 : 60,
         paddingBottom: 20, paddingHorizontal: 20,
-        backgroundColor: '#FFB74D', 
+        backgroundColor: '#eec924', 
         flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-        elevation: 4
+        borderBottomLeftRadius: 30,
+        borderBottomRightRadius: 30,
+        marginBottom: 20,
+        elevation: 5
     },
-    backButton: { padding: 5 },
-    headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#fff' },
+    backButton: { 
+        padding: 8, 
+        backgroundColor: 'rgba(255,255,255,0.2)', 
+        borderRadius: 12 
+    },
+    headerTextContainer: {
+        flex: 1,
+        alignItems: 'center',
+        paddingHorizontal: 10,
+    },
+    headerTitle: { 
+        fontSize: 18, 
+        fontWeight: 'bold', 
+        color: '#fff',
+        textAlign: 'center',
+    },
+    headerSubTitle: {
+        fontSize: 13,
+        color: 'rgba(255,255,255,0.9)',
+        marginTop: 4,
+    },
     
     emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: -50 },
     emptyText: { fontSize: 18, color: '#888', marginTop: 20, fontWeight: 'bold' },
