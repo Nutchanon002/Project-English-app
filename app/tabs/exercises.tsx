@@ -148,9 +148,9 @@ export default function ExercisesScreen() {
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#EF4444" style={{ marginTop: 50 }} />
+        <ActivityIndicator size="large" color="#EF4444" style={{ marginTop: 150 }} />
       ) : (
-        <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 100 }}>
+        <ScrollView contentContainerStyle={{ padding: 20, paddingTop: Platform.OS === 'android' ? 140 : 150, paddingBottom: 100 }}>
             {strands.map((item) => renderCard(item))}
             {strands.length === 0 && (
                 <Text style={{ textAlign: 'center', color: '#999', marginTop: 50 }}>
@@ -166,10 +166,14 @@ export default function ExercisesScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   header: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
     paddingTop: Platform.OS === 'android' ? 45 : 60,
     paddingBottom: 20,
     paddingHorizontal: 25,
-    marginBottom: 25,
     backgroundColor: '#eec924',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
