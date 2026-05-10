@@ -130,7 +130,7 @@ const AIResultModal = ({ visible, onClose, aiMessage, score, total }: any) => {
               {/* ปุ่มไปต่อ (โผล่มาตอนพิมพ์จบ) */}
               {displayStep === 2 && (
                  <TouchableOpacity style={styles.modalActionBtn} onPress={onClose}>
-                   <Text style={styles.modalActionText}>ดูผลคะแนนละเอียด 🚀</Text>
+                   <Text style={styles.modalActionText}>ดูผลคะแนนละเอียด</Text>
                  </TouchableOpacity>
               )}
   
@@ -380,7 +380,7 @@ export default function PretestScreen() {
 
             <View style={styles.header}>
                  <TouchableOpacity onPress={() => router.back()} style={{padding: 5}}>
-                    <Ionicons name="close" size={24} color="#fff" />
+                    <Ionicons name="close" size={24} color="#fff" style={{padding: 5, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 10}}/>
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>แบบทดสอบประเมินความรู้</Text>
                 <View style={{width: 30}}/>

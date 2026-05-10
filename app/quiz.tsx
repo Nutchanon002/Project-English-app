@@ -213,7 +213,7 @@ export default function QuizScreen() {
 
                     {!isReviewMode && (
                         <TouchableOpacity style={styles.finishButton} onPress={handleSubmit}>
-                            <Text style={styles.finishButtonText}>Finish</Text>
+                            <Text style={styles.finishButtonText}>ส่งคำตอบ</Text>
                         </TouchableOpacity>
                     )}
 
