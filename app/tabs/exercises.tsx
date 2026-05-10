@@ -1,5 +1,5 @@
 // app/(tabs)/exercises.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, Text, StyleSheet, TouchableOpacity, 
   ActivityIndicator, ScrollView, Platform
@@ -8,13 +8,21 @@ import { useRouter } from 'expo-router';
 import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestore';
 import { db, auth } from '../../firebaseConfig'; 
 import { StatusBar } from 'expo-status-bar';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useScrollToTop } from '@react-navigation/native';
 
 // ❌ ลบตัวแปรนี้ออกแล้วครับ: const CURRENT_STUDENT_ID = "user_001"; 
 
 export default function ExercisesScreen() {
   const router = useRouter();  
   const isFocused = useIsFocused();
+  const scrollViewRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollViewRef);
+
+  useEffect(() => {
+    if (isFocused) {
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+    }
+  }, [isFocused]);
   
   const [strands, setStrands] = useState<any[]>([]);
   // เก็บข้อมูลผลสอบแบบละเอียด (Score + Recorded Total)
@@ -93,7 +101,7 @@ export default function ExercisesScreen() {
         cardColor = '#5edd63'; // เขียว
         statusText = "ยอดเยี่ยม";
     } else if (percent >= 50) {
-        cardColor = '#F59E0B'; // เหลือง
+        cardColor = '#f8bf23'; // เหลือง
         statusText = "ผ่านเกณฑ์";
     } else {
         cardColor = '#EF5350'; // แดง
@@ -119,7 +127,7 @@ export default function ExercisesScreen() {
                 
                 {/* Badge คะแนนสอบ */}
                 <View style={styles.scoreBadge}>
-                    <Text style={styles.scoreBadgeText}>ทำเเบบฝึกหัดแล้ว: {score}/{currentTotal}</Text>
+                    <Text style={styles.scoreBadgeText}>ทำเเบบฝึกหัดไปแล้ว: {score}/{currentTotal}</Text>
                 </View>
             </View>
             
@@ -150,7 +158,10 @@ export default function ExercisesScreen() {
       {loading ? (
         <ActivityIndicator size="large" color="#EF4444" style={{ marginTop: 150 }} />
       ) : (
-        <ScrollView contentContainerStyle={{ padding: 20, paddingTop: Platform.OS === 'android' ? 140 : 150, paddingBottom: 100 }}>
+        <ScrollView 
+            ref={scrollViewRef}
+            contentContainerStyle={{ padding: 20, paddingTop: Platform.OS === 'android' ? 140 : 150, paddingBottom: 100 }}
+        >
             {strands.map((item) => renderCard(item))}
             {strands.length === 0 && (
                 <Text style={{ textAlign: 'center', color: '#999', marginTop: 50 }}>

@@ -1,5 +1,5 @@
 // app/(tabs)/profile.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, Text, StyleSheet, TouchableOpacity, 
   TextInput, Alert, ActivityIndicator, ScrollView, Platform 
@@ -11,11 +11,19 @@ import { signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebaseConfig'; 
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useScrollToTop } from '@react-navigation/native';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const isFocused = useIsFocused();
+  const scrollViewRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollViewRef);
+
+  useEffect(() => {
+    if (isFocused) {
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+    }
+  }, [isFocused]);
   
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -152,7 +160,7 @@ export default function ProfileScreen() {
       </View>
 
       {/* Content Area */}
-      <ScrollView style={styles.contentContainer}>
+      <ScrollView ref={scrollViewRef} style={styles.contentContainer}>
         
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>การตั้งค่าบัญชี</Text>

@@ -59,15 +59,25 @@ const AIResultModal = ({ visible, onClose, aiMessage, score, total }: any) => {
     useEffect(() => {
       if (displayStep === 1 && aiMessage) {
         let i = 0;
+        let chars: string[] = [];
+        
+        // ใช้ Intl.Segmenter เพื่อแบ่งคำและสระภาษาไทยให้ถูกต้อง (ป้องกันสระ/วรรณยุกต์แยกกัน)
+        try {
+            const segmenter = new Intl.Segmenter('th', { granularity: 'grapheme' });
+            chars = Array.from(segmenter.segment(aiMessage)).map(s => s.segment);
+        } catch (e) {
+            chars = Array.from(aiMessage); // Fallback
+        }
+
         const timer = setInterval(() => {
-          if (i < aiMessage.length) {
-            setDisplayedText((prev) => prev + aiMessage.charAt(i));
+          if (i < chars.length) {
             i++;
+            setDisplayedText(chars.slice(0, i).join(''));
           } else {
             clearInterval(timer);
             setDisplayStep(2); // พิมพ์เสร็จ
           }
-        }, 30); // ความเร็วในการพิมพ์ (ms)
+        }, 20); // ปรับให้พิมพ์เร็วขึ้นนิดหน่อยเพื่อความลื่นไหล
         return () => clearInterval(timer);
       }
     }, [displayStep, aiMessage]);
@@ -103,12 +113,18 @@ const AIResultModal = ({ visible, onClose, aiMessage, score, total }: any) => {
   
               {/* กล่องข้อความ AI */}
               {displayStep > 0 && (
-                <View style={styles.messageBox}>
-                   <Text style={styles.aiTypingText}>
-                     {displayedText}
-                     {displayStep === 1 && <Text style={{color: '#4CAF50'}}>|</Text>}
-                   </Text>
-                </View>
+                <ScrollView 
+                    style={{ width: '100%', flex: 1, marginTop: 10, marginBottom: 10 }}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                >
+                  <View style={styles.messageBox}>
+                     <Text style={styles.aiTypingText}>
+                       {displayedText}
+                       {displayStep === 1 ? <Text style={{color: '#4CAF50'}}>|</Text> : null}
+                     </Text>
+                  </View>
+                </ScrollView>
               )}
   
               {/* ปุ่มไปต่อ (โผล่มาตอนพิมพ์จบ) */}
@@ -232,13 +248,13 @@ export default function PretestScreen() {
 
         if (percentScore >= 80) {
             learnerLevel = "Advanced";
-            recommendationText = "สุดยอดมากครับ! 🎉\nระดับของคุณคือ Advanced (ระดับสูง)\nระบบ AI วิเคราะห์ว่าคุณมีความเข้าใจพื้นฐานครบถ้วนแล้ว พร้อมลุยเนื้อหาตามความสนใจได้เลย!";
+            recommendationText = "ว้าว สุดยอดไปเลยครับ! 🎉\nระดับของคุณคือ 🌟 Advanced (ระดับสูง)\n\nจากที่ AI วิเคราะห์ คุณมีพื้นฐานภาษาอังกฤษที่แน่นมากๆ เลยครับ ตอนนี้คุณพร้อมที่จะลุยเนื้อหาที่ท้าทายขึ้นตามความสนใจได้เลย ลุยกันเลย! 🚀";
         } else if (percentScore >= 50) {
             learnerLevel = "Intermediate";
-            recommendationText = "เยี่ยมมากครับ!\nระดับของคุณคือ Intermediate (ระดับกลาง)\nคุณมีพื้นฐานที่ดี แต่ยังมีบางจุดที่ต้องเสริม AI ได้เตรียมเนื้อหาให้คุณฝึกฝนเฉพาะจุดแล้วครับ";
+            recommendationText = "ทำได้เยี่ยมมากครับ! 👍\nระดับของคุณคือ ⭐ Intermediate (ระดับกลาง)\n\nคุณมีพื้นฐานที่ดีเลยครับ แต่ยังมีบางจุดเล็กๆ ที่เราปรับอีกนิดจะเป๊ะมาก! ไม่ต้องห่วงนะครับ AI เตรียมเนื้อหาที่จะช่วยอุดรอยรั่วและพัฒนาจุดแข็งให้คุณไว้แล้ว 😊";
         } else {
             learnerLevel = "Beginner";
-            recommendationText = "สู้ๆ นะครับ!\nระดับของคุณคือ Beginner (ระดับพื้นฐาน)\nไม่ต้องกังวลครับ AI ได้เลือกบทเรียนที่คุณควรเน้นเพื่อปูพื้นฐานให้แน่นมาให้แล้วครับ";
+            recommendationText = "เริ่มต้นได้ดีครับ! ✌️\nระดับของคุณคือ 🔰 Beginner (ระดับพื้นฐาน)\n\nการเริ่มต้นคือก้าวที่สำคัญที่สุดครับ! AI ได้วิเคราะห์และเตรียมบทเรียนปูพื้นฐานแบบค่อยเป็นค่อยไปมาให้คุณแล้ว เรามาสร้างรากฐานที่แข็งแรงไปด้วยกันนะครับ สู้ๆ! 💪";
         }
 
         const user = auth.currentUser;
@@ -475,8 +491,8 @@ const styles = StyleSheet.create({
 
     // ✅ STYLES FOR MODAL (ใหม่)
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-    modalContainer: { height: '65%', width: '100%', borderTopLeftRadius: 30, borderTopRightRadius: 30, overflow: 'hidden', backgroundColor: '#fff' },
-    gradientBg: { flex: 1, padding: 25, alignItems: 'center' },
+    modalContainer: { height: '80%', width: '100%', borderTopLeftRadius: 30, borderTopRightRadius: 30, overflow: 'hidden', backgroundColor: '#fff' },
+    gradientBg: { flex: 1, padding: 25, paddingBottom: 35, alignItems: 'center' },
     lottieWrapper: { marginBottom: 10, marginTop: 10, height: 160, justifyContent: 'center', alignItems: 'center' },
     modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#2E7D32', marginBottom: 20, textAlign: 'center' },
     messageBox: { 
@@ -485,8 +501,9 @@ const styles = StyleSheet.create({
     },
     aiTypingText: { fontSize: 18, color: '#333', lineHeight: 28 },
     modalActionBtn: {
-        marginTop: 30, backgroundColor: '#4CAF50', paddingVertical: 15, paddingHorizontal: 40,
-        borderRadius: 30, shadowColor: "#4CAF50", shadowOffset: {width: 0, height: 4}, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5
+        marginTop: 10, backgroundColor: '#4CAF50', paddingVertical: 15, paddingHorizontal: 40,
+        borderRadius: 30, shadowColor: "#4CAF50", shadowOffset: {width: 0, height: 4}, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5,
+        width: '100%', alignItems: 'center'
     },
     modalActionText: { color: '#fff', fontSize: 18, fontWeight: 'bold' }
 });

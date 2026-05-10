@@ -1,8 +1,8 @@
 // app/(tabs)/index.tsx
 import { useRouter } from 'expo-router';
 import { collection, doc, getDoc, onSnapshot, orderBy, query, where } from 'firebase/firestore';
-import React, { useEffect, useState } from 'react';
-import { useIsFocused } from '@react-navigation/native';
+import React, { useEffect, useState, useRef } from 'react';
+import { useIsFocused, useScrollToTop } from '@react-navigation/native';
 import {
   ActivityIndicator,
   RefreshControl,
@@ -18,6 +18,14 @@ import { StatusBar } from 'expo-status-bar';
 export default function DashboardScreen() {
   const router = useRouter();  
   const isFocused = useIsFocused();
+  const scrollViewRef = useRef<ScrollView>(null);
+  useScrollToTop(scrollViewRef);
+
+  useEffect(() => {
+    if (isFocused) {
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+    }
+  }, [isFocused]);
   
   const [strands, setStrands] = useState<any[]>([]);
   const [allTopics, setAllTopics] = useState<any[]>([]);
@@ -195,15 +203,15 @@ export default function DashboardScreen() {
                   <Text style={styles.cardSubtitle}>({item.subtitle})</Text>
                 ) : null}
                 
-                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, marginTop: 4 }}>
+                <Text style={{ color: 'rgba(255,255,255,1)', fontSize: 13, marginTop: 5 }}>
                   บทเรียน {stats.completed}/{stats.total} หัวข้อ
                 </Text>
 
                 {/* แสดงคะแนนสอบ */}
                 {showScoreBadge && (
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5, backgroundColor: 'rgba(0,0,0,0.2)', alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 }}>
-                        <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>
-                            ทำเเบบฝึกหัดเเล้ว : {displayScore}/{displayTotal}
+                        <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>
+                            ทำเเบบฝึกหัดไปเเล้ว : {displayScore}/{displayTotal}
                         </Text>
                     </View>
                 )}
@@ -232,6 +240,7 @@ export default function DashboardScreen() {
     <View style={styles.container}>
       {isFocused && <StatusBar style="dark" />}
       <ScrollView 
+        ref={scrollViewRef}
         contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#4CAF50"]} />
@@ -263,11 +272,10 @@ export default function DashboardScreen() {
                 onPress={() => router.push("/pretest" as any)}
             >
                 <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 5}}>
-                    <Text style={{fontSize: 20, marginRight: 5}}>🤖</Text>
                     <Text style={[styles.assessTitle, {marginBottom: 0, color: '#FF8F00'}]}>ผลประเมินของคุณ: {assessmentResult.learner_level || "Learner"}</Text>
                 </View>
                 <Text style={[styles.assessSub, {color: '#8D6E63'}]}>
-                    คะแนน: {assessmentResult.score}/{assessmentResult.total} | ทดสอบซ้ำเพื่ออัปเดตผล AI
+                    คะแนน: {assessmentResult.score}/{assessmentResult.total} | ทดสอบซ้ำเพื่ออัปเดตผล 
                 </Text>
                 <Text style={[styles.assessLink, {color: '#FF8F00'}]}>ทำแบบทดสอบอีกครั้ง {'>'}</Text>
             </TouchableOpacity>
@@ -282,10 +290,10 @@ export default function DashboardScreen() {
                 ) : assessmentResult && assessmentResult.weak_strands && assessmentResult.weak_strands.length > 0 ? (
                     // 🌟 แสดงแบบ AI Personalized
                     <>
-                        <Text style={[styles.sectionHeader, { color: '#E65100' }]}>🌟 AI แนะนำให้คุณเรียนเสริม</Text>
+                        <Text style={[styles.sectionHeader, { color: '#E65100' }]}>🌟 สาระการเรียนรู้ที่เเนะนำ</Text>
                         {strands.filter(s => assessmentResult.weak_strands.includes(s.id)).map(renderCard)}
                         
-                        <Text style={[styles.sectionHeader, { marginTop: 20 }]}>📚 เนื้อหาการเรียนรู้อื่นๆ</Text>
+                        <Text style={[styles.sectionHeader, { color: '#E65100', marginTop: 20 }]}>📚 สาระการเรียนรู้อื่นๆ</Text>
                         {strands.filter(s => !assessmentResult.weak_strands.includes(s.id)).map(renderCard)}
                     </>
                 ) : (
@@ -293,7 +301,7 @@ export default function DashboardScreen() {
                     <>
                         {assessmentResult?.score === assessmentResult?.total && assessmentResult?.total > 0 && (
                             <Text style={{color: '#4CAF50', fontWeight: 'bold', fontSize: 16, marginBottom: 15, textAlign: 'center'}}>
-                                🎉 คุณทำคะแนนได้เต็ม! ลุยเนื้อหาตามใจชอบได้เลยครับ
+                                🎉 คุณทำคะแนนได้เต็ม! ลุยเนื้อหาทั้งหมดได้เลยครับ
                             </Text>
                         )}
                         <Text style={styles.sectionHeader}>สาระการเรียนรู้</Text>

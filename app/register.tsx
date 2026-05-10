@@ -49,7 +49,7 @@ export default function RegisterScreen() {
 
       // 4. แจ้งเตือนและพาไปหน้าหลัก
         Alert.alert("สำเร็จ!", "สมัครสมาชิกเรียบร้อยแล้ว", [
-        { text: "เริ่มใช้งาน", onPress: () => router.replace('/(tabs)' as any) }
+        { text: "เริ่มใช้งาน", onPress: () => router.replace('/tabs' as any) }
         ]);
 
     } catch (error: any) {
