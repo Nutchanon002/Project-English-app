@@ -34,11 +34,16 @@ const AIResultModal = ({ visible, onClose, aiMessage, score, total }: any) => {
     const [displayedText, setDisplayedText] = useState("");
     const slideAnim = useRef(new Animated.Value(500)).current; 
   
+    // เพิ่ม state และ ref สำหรับจำกัดรอบการเล่นอนิเมชั่น
+    const [playCount, setPlayCount] = useState(0);
+    const lottieRef = useRef<any>(null);
+
     useEffect(() => {
       if (visible) {
         // Reset ค่าเมื่อเปิด Modal
         setDisplayStep(0);
         setDisplayedText("");
+        setPlayCount(0);
         slideAnim.setValue(500);
   
         // Slide ขึ้นมา
@@ -51,6 +56,7 @@ const AIResultModal = ({ visible, onClose, aiMessage, score, total }: any) => {
         // Step 1: แกล้งๆ คิด 2.5 วินาที
         setTimeout(() => {
           setDisplayStep(1);
+          setPlayCount(0); // รีเซ็ตนับรอบอนิเมชั่นใหม่เมื่อเปลี่ยนท่า
         }, 2500);
       }
     }, [visible, slideAnim]);
@@ -95,13 +101,31 @@ const AIResultModal = ({ visible, onClose, aiMessage, score, total }: any) => {
                     // ⚠️ อย่าลืมเอาไฟล์ .json ไปใส่ใน assets/lottie/ นะครับ
                     // ถ้ายังไม่มีไฟล์ ให้ comment <LottieView> ออกก่อน แล้วใส่ <ActivityIndicator /> แทนได้ครับ
                     <LottieView
+                        ref={displayStep === 0 ? lottieRef : null}
                         source={require('../assets/images/lottie/ai-thinking.json')} 
-                        autoPlay loop style={{ width: 150, height: 150 }}
+                        autoPlay 
+                        loop={false}
+                        onAnimationFinish={() => {
+                            if (playCount < 1) {
+                                setPlayCount(prev => prev + 1);
+                                lottieRef.current?.play();
+                            }
+                        }}
+                        style={{ width: 150, height: 150 }}
                     />
                 ) : (
                     <LottieView
+                        ref={displayStep > 0 ? lottieRef : null}
                         source={require('../assets/images/lottie/ai-talk.json')} 
-                        autoPlay loop style={{ width: 120, height: 120 }}
+                        autoPlay 
+                        loop={false}
+                        onAnimationFinish={() => {
+                            if (playCount < 1) {
+                                setPlayCount(prev => prev + 1);
+                                lottieRef.current?.play();
+                            }
+                        }}
+                        style={{ width: 120, height: 120 }}
                     />
                 )}
               </View>
@@ -330,24 +354,41 @@ export default function PretestScreen() {
 
                     {weakStrands.length > 0 && (
                         <View style={{width: '100%', marginTop: 10, marginBottom: 20}}>
-                            <Text style={styles.subHeader}>บทเรียนแนะนำสำหรับคุณ:</Text>
+                            <Text style={styles.subHeader}>สาระการเรียนรู้ที่แนะนำสำหรับคุณ :</Text>
                             {weakStrands.map((strand, index) => (
-                                <TouchableOpacity 
-                                    key={index}
-                                    style={styles.recommendBtn}
-                                    onPress={() => {
-                                        router.push({
-                                            pathname: "/topics",
-                                            params: { strandId: strand.id, title: strand.name }
-                                        } as any);
-                                    }}
-                                >
-                                    <View style={styles.numberBadge}><Text style={{color:'#fff', fontWeight:'bold'}}>{index+1}</Text></View>
-                                    <View style={{flex: 1, paddingHorizontal: 10}}>
-                                        <Text style={styles.recommendBtnText}>ไปเรียนเรื่อง {strand.name}</Text>
+                                <View key={index} style={styles.recommendCardWrapper}>
+                                    <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
+                                        {/* <View style={styles.numberBadge}><Text style={{color:'#fff', fontWeight:'bold'}}>{index+1}</Text></View> */}
+                                        <Text style={[styles.recommendBtnText, {flex: 1, paddingHorizontal: 5}]}>{strand.name}</Text>
                                     </View>
-                                    <Ionicons name="arrow-forward" size={20} color="#4CAF50" />
-                                </TouchableOpacity>
+                                    <View style={{flexDirection: 'row'}}>
+                                        <TouchableOpacity 
+                                            style={[styles.recommendActionBtn, { borderColor: '#4CAF50', marginRight: 5 }]}
+                                            onPress={() => {
+                                                router.push({
+                                                    pathname: "/topics",
+                                                    params: { strandId: strand.id, title: strand.name }
+                                                } as any);
+                                            }}
+                                        >
+                                            <Ionicons name="book" size={18} color="#4CAF50" />
+                                            <Text style={[styles.recommendActionText, { color: '#4CAF50' }]}>อ่านบทเรียน</Text>
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity 
+                                            style={[styles.recommendActionBtn, { borderColor: '#FF9800', marginLeft: 5 }]}
+                                            onPress={() => {
+                                                router.push({
+                                                    pathname: "/quiz",
+                                                    params: { strandId: strand.id, title: strand.name }
+                                                } as any);
+                                            }}
+                                        >
+                                            <Ionicons name="pencil" size={18} color="#FF9800" />
+                                            <Text style={[styles.recommendActionText, { color: '#FF9800' }]}>แบบฝึกหัด</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
                             ))}
                         </View>
                     )}
@@ -473,6 +514,15 @@ const styles = StyleSheet.create({
     aiLabel: { fontWeight: 'bold', color: '#2E7D32', fontSize: 16 },
     aiText: { fontSize: 16, color: '#333', lineHeight: 26, marginTop: 5 },
     subHeader: { alignSelf: 'flex-start', fontSize: 16, fontWeight: 'bold', color: '#555', marginBottom: 10 },
+    recommendCardWrapper: {
+        backgroundColor: '#fff', padding: 15, borderRadius: 12, marginBottom: 15,
+        borderWidth: 1, borderColor: '#ddd', width: '100%', elevation: 2
+    },
+    recommendActionBtn: {
+        flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+        paddingVertical: 10, borderRadius: 8, borderWidth: 1, backgroundColor: '#FAFAFA'
+    },
+    recommendActionText: { fontSize: 14, fontWeight: 'bold', marginLeft: 5 },
     recommendBtn: {
         flexDirection: 'row', alignItems: 'center',
         backgroundColor: '#fff', padding: 15, borderRadius: 12, marginBottom: 10,

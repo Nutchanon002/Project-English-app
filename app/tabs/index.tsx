@@ -211,7 +211,7 @@ export default function DashboardScreen() {
                 {showScoreBadge && (
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5, backgroundColor: 'rgba(0,0,0,0.2)', alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 }}>
                         <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>
-                            ทำเเบบฝึกหัดไปเเล้ว : {displayScore}/{displayTotal}
+                            ทำเเบบฝึกหัดได้คะเเนน : {displayScore}/{displayTotal}
                         </Text>
                     </View>
                 )}

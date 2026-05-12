@@ -127,7 +127,7 @@ export default function ExercisesScreen() {
                 
                 {/* Badge คะแนนสอบ */}
                 <View style={styles.scoreBadge}>
-                    <Text style={styles.scoreBadgeText}>ทำเเบบฝึกหัดไปแล้ว: {score}/{currentTotal}</Text>
+                    <Text style={styles.scoreBadgeText}>ทำเเบบฝึกหัดได้คะเเนน : {score}/{currentTotal}</Text>
                 </View>
             </View>
             
